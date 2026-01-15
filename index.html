@@ -41,7 +41,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
-  const QR_TEXT = "ATT:1";
+  const QR_TEXT = "Attachment:1";
   const VIDEO_FILE = "video.mp4";
 
   const player = document.getElementById("player");
@@ -111,7 +111,7 @@
 
     if (code && code.data) {
       const text = norm(code.data);
-      if (text === QR_TEXT) {
+      if (text.replace(/\s+/g, "") === QR_TEXT) {
         scanHud.textContent = `Detected ${text} ✅`;
         stopScan();
         playVideo();
@@ -148,4 +148,5 @@
 </script>
 </body>
 </html>
+
 
