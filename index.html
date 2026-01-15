@@ -3,150 +3,45 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-  <title>QR → Video Test</title>
+  <title>QR → Video Test (A1)</title>
+
   <style>
-    html,body{margin:0;height:100%;background:#000;font-family:system-ui,Arial;overflow:hidden}
-    #player{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+    html,body{
+      margin:0;height:100%;background:#000;
+      font-family:system-ui,Arial;overflow:hidden
+    }
+
+    #player{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      object-fit:contain;background:#000
+    }
+
     #bar{
       position:absolute;left:12px;right:12px;top:12px;
       display:flex;gap:10px;align-items:center;z-index:10;
-      background:rgba(0,0,0,.55);color:#fff;padding:10px 12px;border-radius:14px;
-    }
-    button{padding:10px 12px;border-radius:12px;border:0;font-weight:800}
-    #status{margin-left:auto;opacity:.9;font-size:13px}
-    #scanLayer{position:absolute;inset:0;display:none;z-index:20;background:#000}
-    #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    #scanHud{
-      position:absolute;left:12px;right:12px;bottom:12px;z-index:30;
-      background:rgba(0,0,0,.55);color:#fff;padding:10px 12px;border-radius:14px;
-      font-weight:700
-    }
-  </style>
-</head>
-<body>
-
-  <video id="player" playsinline controls></video>
-
-  <div id="bar">
-    <button id="scanBtn">Scan QR</button>
-    <button id="fsBtn">Fullscreen</button>
-    <button id="stopBtn">Stop</button>
-    <div id="status">Ready (QR must say ATT:1)</div>
-  </div>
-
-  <div id="scanLayer">
-    <video id="cam" playsinline autoplay muted></video>
-    <div id="scanHud">Point at QR: ATT:1</div>
-  </div>
-
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-<script>
-  const QR_TEXT = "Attachment:1";
-  const VIDEO_FILE = "video.mp4";
-
-  const player = document.getElementById("player");
-  const statusEl = document.getElementById("status");
-  const scanLayer = document.getElementById("scanLayer");
-  const cam = document.getElementById("cam");
-  const scanHud = document.getElementById("scanHud");
-
-  let stream = null;
-  let scanning = false;
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-  function norm(s){ return (s||"").trim().toUpperCase(); }
-  function setStatus(t){ statusEl.textContent = t; }
-
-  async function playVideo() {
-    setStatus("Loading video…");
-    player.src = VIDEO_FILE;
-    player.currentTime = 0;
-    try {
-      await player.play();
-      setStatus("Playing video.mp4");
-    } catch {
-      setStatus("Loaded video.mp4 — tap Play (autoplay blocked)");
-    }
-  }
-
-  async function startScan(){
-    scanLayer.style.display = "block";
-    scanHud.textContent = "Starting camera…";
-    setStatus("Scanning…");
-
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" },
-      audio: false
-    });
-    cam.srcObject = stream;
-    await cam.play();
-
-    scanning = true;
-    scanHud.textContent = "Point at QR: ATT:1";
-    scanLoop();
-  }
-
-  function stopScan(){
-    scanning = false;
-    scanLayer.style.display = "none";
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    stream = null;
-    cam.srcObject = null;
-  }
-
-  function scanLoop(){
-    if (!scanning) return;
-
-    const w = cam.videoWidth || 1280;
-    const h = cam.videoHeight || 720;
-
-    canvas.width = w;
-    canvas.height = h;
-    ctx.drawImage(cam, 0, 0, w, h);
-
-    const img = ctx.getImageData(0, 0, w, h);
-    const code = jsQR(img.data, w, h, { inversionAttempts: "attemptBoth" });
-
-    if (code && code.data) {
-      const text = norm(code.data);
-      if (text.replace(/\s+/g, "") === QR_TEXT) {
-        scanHud.textContent = `Detected ${text} ✅`;
-        stopScan();
-        playVideo();
-        return;
-      } else {
-        scanHud.textContent = `Read: ${text} (need ATT:1)`;
-      }
+      background:rgba(0,0,0,.55);
+      color:#fff;padding:10px 12px;border-radius:14px;
+      flex-wrap:wrap;
     }
 
-    requestAnimationFrame(scanLoop);
-  }
-
-  document.getElementById("scanBtn").addEventListener("click", () => {
-    startScan().catch(err => {
-      console.error(err);
-      setStatus("Camera failed: needs HTTPS + permission");
-    });
-  });
-
-  document.getElementById("fsBtn").addEventListener("click", async () => {
-    try {
-      await document.documentElement.requestFullscreen();
-    } catch {
-      setStatus("Fullscreen blocked by browser");
+    button{
+      padding:10px 12px;border-radius:12px;
+      border:0;font-weight:800
     }
-  });
 
-  document.getElementById("stopBtn").addEventListener("click", () => {
-    player.pause();
-    player.removeAttribute("src");
-    player.load();
-    setStatus("Stopped");
-  });
-</script>
-</body>
-</html>
+    button:disabled{opacity:.5}
 
+    #status{
+      margin-left:auto;
+      opacity:.9;font-size:13px
+    }
 
+    #scanLayer{
+      position:absolute;inset:0;
+      display:none;z-index:20;background:#000
+    }
+
+    #cam{
+      position:absolute;inset:0;
+      width:100%;height:10
